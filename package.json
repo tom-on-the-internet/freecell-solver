@@ -1,0 +1,19 @@
+{
+    "name": "freecell",
+    "module": "src/index.ts",
+    "type": "module",
+    "private": true,
+    "devDependencies": {
+        "@types/bun": "latest"
+    },
+    "peerDependencies": {
+        "typescript": "^5"
+    },
+    "scripts": {
+        "new": "bun run src --new",
+        "single": "bun run src",
+        "game": "bun run src --game-id",
+        "unsolved": "bun run src unsolved",
+        "stats": "bun run src stats"
+    }
+}
