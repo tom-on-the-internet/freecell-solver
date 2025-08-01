@@ -1,15 +1,11 @@
 function createDeck() {
     let suits = ["H", "D", "C", "S"]
-    let ranks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
-
     let deck = []
-
-    for (let suit of suits) {
-        for (let rank of ranks) {
+    for (const suit of suits) {
+        for (let rank = 1; rank <= 13; rank++) {
             deck.push({ suit, rank })
         }
     }
-
     return deck
 }
 
@@ -20,13 +16,6 @@ function shuffleDeck(deck) {
         ;[shuffledDeck[i], shuffledDeck[j]] = [shuffledDeck[j], shuffledDeck[i]]
     }
     return shuffledDeck
-}
-
-function dealCard(deck) {
-    if (deck.length === 0) {
-        return null // No cards left to deal
-    }
-    return deck.pop() // Remove and return the last card
 }
 
 function rankToString(rank) {
@@ -47,14 +36,7 @@ function rankToString(rank) {
 }
 
 function suitColor(suit) {
-    switch (suit) {
-        case "H":
-        case "D":
-            return "red"
-    }
-
-    return "black"
+    return suit === "H" || suit === "D" ? "red" : "black"
 }
 
-export { createDeck, dealCard, rankToString, shuffleDeck, suitColor }
-
+export { createDeck, rankToString, shuffleDeck, suitColor }

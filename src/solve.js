@@ -200,4 +200,3 @@ function solve(freeCellBoard) {
 }
 
 export { solve }
-

@@ -53,4 +53,3 @@ function renderFreecellBoard(board, solved) {
 }
 
 export { renderFreecellBoard }
-

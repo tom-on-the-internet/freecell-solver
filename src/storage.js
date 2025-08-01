@@ -41,4 +41,3 @@ async function loadDeck(gameId) {
 }
 
 export { storeDeck, loadDeck }
-
