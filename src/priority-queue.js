@@ -1,15 +1,15 @@
 /**
  * A simple implementation of a priority queue using a binary heap.
  */
-class PriorityQueue<T> {
-    private heap: { item: T; priority: number }[] = []
+class PriorityQueue {
+    heap = []
 
-    enqueue(item: T, priority: number): void {
+    enqueue(item, priority) {
         this.heap.push({ item, priority })
         this.bubbleUp()
     }
 
-    dequeue(): T | undefined {
+    dequeue() {
         if (this.heap[0] === undefined) return undefined
         let top = this.heap[0].item
         let end = this.heap.pop()
@@ -20,19 +20,19 @@ class PriorityQueue<T> {
         return top
     }
 
-    peek(): T | undefined {
+    peek() {
         return this.heap[0]?.item
     }
 
-    isEmpty(): boolean {
+    isEmpty() {
         return this.heap.length === 0
     }
 
-    size(): number {
+    size() {
         return this.heap.length
     }
 
-    private bubbleUp(): void {
+    bubbleUp() {
         let idx = this.heap.length - 1
         while (idx > 0) {
             let parentIdx = Math.floor((idx - 1) / 2)
@@ -45,7 +45,7 @@ class PriorityQueue<T> {
         }
     }
 
-    private bubbleDown(): void {
+    bubbleDown() {
         let idx = 0
         let length = this.heap.length
         while (true) {
@@ -76,3 +76,4 @@ class PriorityQueue<T> {
 }
 
 export { PriorityQueue }
+

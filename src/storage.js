@@ -1,24 +1,20 @@
-import type { Deck } from "./deck"
+import { readFile, writeFile } from "fs/promises"
 
 /**
  * Stores a deck in the results.json file.
  * If a gameId is provided, it updates the existing game.
  * If not, it creates a new game entry.
  */
-async function storeDeck(
-    deck: Deck,
-    moves: number | null = null,
-    gameId: number | null = null
-): Promise<number> {
-    let results = await Bun.file("results.json").json()
+async function storeDeck(deck, moves = null, gameId = null) {
+    let results = JSON.parse(await readFile("results.json", "utf8"))
 
     // If there is a gameId, we will update the existing game.
     if (gameId !== null) {
-        let result = results.find((game: any) => game.game === gameId)
+        let result = results.find((game) => game.game === gameId)
         if (result) {
             result.moves = moves
             result.deck = deck
-            await Bun.write("results.json", JSON.stringify(results, null, 4))
+            await writeFile("results.json", JSON.stringify(results, null, 4))
             return gameId
         }
     }
@@ -30,18 +26,19 @@ async function storeDeck(
         deck: deck,
     })
 
-    await Bun.write("results.json", JSON.stringify(results, null, 4))
+    await writeFile("results.json", JSON.stringify(results, null, 4))
     return gameCount
 }
 
 /**
  * Loads a deck from the results.json file based on the gameId.
  */
-async function loadDeck(gameId: number): Promise<Deck> {
-    let results = await Bun.file("results.json").json()
+async function loadDeck(gameId) {
+    let results = JSON.parse(await readFile("results.json", "utf8"))
 
-    let result = results.find((game: any) => game.game === gameId)
+    let result = results.find((game) => game.game === gameId)
     return result.deck
 }
 
 export { storeDeck, loadDeck }
+

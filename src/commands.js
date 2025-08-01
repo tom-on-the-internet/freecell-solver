@@ -1,17 +1,18 @@
-import { shuffleDeck, createDeck, type Deck } from "./deck"
-import { createFreecellBoard } from "./freecell"
-import { solve } from "./solve"
-import { loadDeck, storeDeck } from "./storage"
-import { renderFreecellBoard } from "./terminal"
+import { readFile } from "fs/promises"
+import { shuffleDeck, createDeck } from "./deck.js"
+import { createFreecellBoard } from "./freecell.js"
+import { solve } from "./solve.js"
+import { loadDeck, storeDeck } from "./storage.js"
+import { renderFreecellBoard } from "./terminal.js"
 
 /**
  *  Attempts to solve games that were previously attempted but not solved.
  *  This is a way of seeing if an improved heuristic or algorithm can solve previously unsolved games.
  */
 async function solveUnsolved() {
-    let results = await Bun.file("results.json").json()
+    let results = JSON.parse(await readFile("results.json", "utf8"))
 
-    let games = results.filter((game: any) => !game.moves)
+    let games = results.filter((game) => !game.moves)
 
     console.log("Found", games.length, "unsolved games out of", results.length)
     // wait for 1 second
@@ -35,16 +36,16 @@ async function solveUnsolved() {
  * Shows statistics about the solved games.
  */
 async function stats() {
-    let results = await Bun.file("results.json").json()
+    let results = JSON.parse(await readFile("results.json", "utf8"))
 
-    let unsolvedGames = results.filter((game: any) => !game.moves)
-    let leastMoves = results.reduce((min: number, game: any) => {
+    let unsolvedGames = results.filter((game) => !game.moves)
+    let leastMoves = results.reduce((min, game) => {
         if (game.moves && game.moves < min) {
             return game.moves
         }
         return min
     }, Infinity)
-    let mostMoves = results.reduce((max: number, game: any) => {
+    let mostMoves = results.reduce((max, game) => {
         if (game.moves && game.moves > max) {
             return game.moves
         }
@@ -60,7 +61,7 @@ async function stats() {
 /**
  * Solves a specified number of new games, storing the results in the storage.
  */
-async function solveNewGames(count: number) {
+async function solveNewGames(count) {
     let solved = 0
 
     for (let i = 0; i < count; i++) {
@@ -84,8 +85,8 @@ async function solveNewGames(count: number) {
 /**
  * Solves a single game, either by loading an existing game by ID or creating a new game.
  */
-async function solveSingleGame(gameId: number | undefined = undefined) {
-    let deck: Deck
+async function solveSingleGame(gameId = undefined) {
+    let deck
 
     if (gameId) {
         deck = await loadDeck(gameId)
@@ -109,7 +110,7 @@ async function solveSingleGame(gameId: number | undefined = undefined) {
 
     for (let i = 0; i < solution.length; i++) {
         console.clear()
-        console.log(renderFreecellBoard(solution[i]!, true))
+        console.log(renderFreecellBoard(solution[i], true))
         console.log("Game ID:", gameId)
         console.log("move:", i + 1, "/", solution.length)
         console.log("visited:", result.visitedStates, "states")
@@ -120,3 +121,4 @@ async function solveSingleGame(gameId: number | undefined = undefined) {
 }
 
 export { solveUnsolved, stats, solveNewGames, solveSingleGame }
+

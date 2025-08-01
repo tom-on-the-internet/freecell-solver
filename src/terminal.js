@@ -1,7 +1,6 @@
-import { type Card, rankToString, suitColor } from "./deck"
-import type { FreecellBoard } from "./freecell"
+import { rankToString, suitColor } from "./deck.js"
 
-function renderCard(card: Card | undefined | null): string {
+function renderCard(card) {
     if (!card) {
         return "  "
     }
@@ -15,7 +14,7 @@ function renderCard(card: Card | undefined | null): string {
 /**
  * Renders the Freecell board in a human-readable format.
  */
-function renderFreecellBoard(board: FreecellBoard, solved: boolean): string {
+function renderFreecellBoard(board, solved) {
     let output =
         "𝐅𝐫𝐞𝐞𝐜𝐞𝐥𝐥 𝙎𝙤𝙡𝙫𝙚𝙧   " + (solved ? "Solved!" : "Solving...") + " \n\n"
 
@@ -27,7 +26,7 @@ function renderFreecellBoard(board: FreecellBoard, solved: boolean): string {
 
     board.foundations.forEach((foundation) => {
         if (foundation.length > 0) {
-            let topCard = foundation.at(-1)!
+            let topCard = foundation.at(-1)
             output += `|${renderCard(topCard)}| `
         }
     })
@@ -36,12 +35,12 @@ function renderFreecellBoard(board: FreecellBoard, solved: boolean): string {
 
     for (
         let row = 0;
-        row < Math.max(...board.tableau.map((cascade) => cascade!.length));
+        row < Math.max(...board.tableau.map((cascade) => cascade.length));
         row++
     ) {
         output += " "
         for (let col = 0; col < board.tableau.length; col++) {
-            let card = board.tableau[col]![row]
+            let card = board.tableau[col][row]
 
             let cardText = `|${renderCard(card)}| `
 
@@ -54,3 +53,4 @@ function renderFreecellBoard(board: FreecellBoard, solved: boolean): string {
 }
 
 export { renderFreecellBoard }
+

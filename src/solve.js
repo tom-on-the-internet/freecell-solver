@@ -1,7 +1,7 @@
-import { suitColor } from "./deck"
-import { type FreecellBoard, nextStates, won } from "./freecell"
-import { PriorityQueue } from "./priority-queue"
-import { renderFreecellBoard } from "./terminal"
+import { suitColor } from "./deck.js"
+import { nextStates, won } from "./freecell.js"
+import { PriorityQueue } from "./priority-queue.js"
+import { renderFreecellBoard } from "./terminal.js"
 
 /**
  * Heuristic function for Freecell solving.
@@ -9,7 +9,7 @@ import { renderFreecellBoard } from "./terminal"
  * It considers foundation completeness, tableau disorder, buried cards, and mobility.
  * This is the secret sauce of the solver.
  */
-function heuristic(freeCellBoard: FreecellBoard) {
+function heuristic(freeCellBoard) {
     const { foundations, tableau, freeCells } = freeCellBoard
 
     const cardsInFoundations = foundations.reduce((sum, f) => sum + f.length, 0)
@@ -28,7 +28,7 @@ function heuristic(freeCellBoard: FreecellBoard) {
     let lowCardPenalty = 0
     for (const col of tableau) {
         for (let i = 0; i < col.length - 1; i++) {
-            const card = col[i]!
+            const card = col[i]
             const depth = col.length - i - 1
             if (card.rank <= 3) buriedPenalty += depth * 3
             else buriedPenalty += depth
@@ -39,8 +39,8 @@ function heuristic(freeCellBoard: FreecellBoard) {
     let disorderPenalty = 0
     for (const col of tableau) {
         for (let i = 1; i < col.length; i++) {
-            const prev = col[i - 1]!
-            const curr = col[i]!
+            const prev = col[i - 1]
+            const curr = col[i]
             if (
                 prev.rank !== curr.rank + 1 ||
                 suitColor(prev.suit) === suitColor(curr.suit)
@@ -54,9 +54,9 @@ function heuristic(freeCellBoard: FreecellBoard) {
     // Low cards blocked by high same-color cards
     for (const col of tableau) {
         for (let i = 0; i < col.length - 1; i++) {
-            const blocker = col[i]!
+            const blocker = col[i]
             for (let j = i + 1; j < col.length; j++) {
-                const below = col[j]!
+                const below = col[j]
                 if (
                     below.rank <= 3 &&
                     blocker.rank > below.rank &&
@@ -78,7 +78,7 @@ function heuristic(freeCellBoard: FreecellBoard) {
         const top = Array.isArray(pile) ? pile.at(-1) : pile
         if (!top) continue
         const suitIdx = "CDHS".indexOf(top.suit)
-        const foundationRank = foundationRanks[suitIdx]!
+        const foundationRank = foundationRanks[suitIdx]
         if (top.rank === foundationRank + 1 && top.rank - minFoundation <= 2) {
             playableToFoundation += 1
         }
@@ -108,13 +108,13 @@ function heuristic(freeCellBoard: FreecellBoard) {
  * Generates a unique hash for the Freecell board state.
  * This is used to track visited states and avoid cycles.
  */
-function hash(freeCellBoard: FreecellBoard): string {
+function hash(freeCellBoard) {
     return JSON.stringify({
         tableau: freeCellBoard.tableau.toSorted((a, b) => {
             if (a.length === 0 && b.length === 0) return 0
             if (a.length === 0) return 1
             if (b.length === 0) return -1
-            return a.length - b.length || a[0]!.rank - b[0]!.rank
+            return a.length - b.length || a[0].rank - b[0].rank
         }),
 
         foundations: freeCellBoard.foundations,
@@ -130,16 +130,13 @@ function hash(freeCellBoard: FreecellBoard): string {
     })
 }
 
-function reconstructPath(
-    cameFrom: Map<string, FreecellBoard>,
-    current: FreecellBoard
-): FreecellBoard[] {
-    let path: FreecellBoard[] = []
+function reconstructPath(cameFrom, current) {
+    let path = []
     let currentHash = hash(current)
 
     while (cameFrom.has(currentHash)) {
         path.push(current)
-        current = cameFrom.get(currentHash)!
+        current = cameFrom.get(currentHash)
         currentHash = hash(current)
     }
 
@@ -150,14 +147,14 @@ function reconstructPath(
 /**
  * Solves the Freecell game using A* search algorithm.
  */
-function solve(freeCellBoard: FreecellBoard) {
-    let priorityQueue = new PriorityQueue<FreecellBoard>()
+function solve(freeCellBoard) {
+    let priorityQueue = new PriorityQueue()
     priorityQueue.enqueue(freeCellBoard, heuristic(freeCellBoard))
 
-    let scores = new Map<string, number>()
+    let scores = new Map()
     scores.set(hash(freeCellBoard), 0)
 
-    let cameFrom = new Map<string, FreecellBoard>()
+    let cameFrom = new Map()
 
     let count = 0
     while (!priorityQueue.isEmpty() && scores.size < 200_000) {
@@ -184,11 +181,11 @@ function solve(freeCellBoard: FreecellBoard) {
         for (let nextState of nextStates(current)) {
             let nextHash = hash(nextState)
 
-            let tentativeScore = scores.get(hash(current))! + 1
+            let tentativeScore = scores.get(hash(current)) + 1
 
             if (
                 !scores.has(nextHash) ||
-                tentativeScore < scores.get(nextHash)!
+                tentativeScore < scores.get(nextHash)
             ) {
                 cameFrom.set(nextHash, current)
                 scores.set(nextHash, tentativeScore)
@@ -203,3 +200,4 @@ function solve(freeCellBoard: FreecellBoard) {
 }
 
 export { solve }
+

@@ -27,25 +27,34 @@ import {
     solveSingleGame,
     solveUnsolved,
     stats,
-} from "./commands"
+} from "./commands.js"
 
 function getArgs() {
-    return parseArgs({
-        args: Bun.argv,
-        options: {
-            "game-id": {
-                type: "string",
-                description: "Load a specific game by ID",
+    try {
+        return parseArgs({
+            options: {
+                "game-id": {
+                    type: "string",
+                    description: "Load a specific game by ID",
+                },
+                new: {
+                    type: "string",
+                    description: "Solve # of new games",
+                },
             },
-            new: {
-                type: "string",
-                short: "g",
-                description: "Solve # of new games",
-            },
-        },
-        strict: true,
-        allowPositionals: true,
-    })
+            strict: true,
+            allowPositionals: true,
+        })
+    } catch (err) {
+        if (
+            err.code === "ERR_PARSE_ARGS_INVALID_OPTION_VALUE" &&
+            err.message.includes("--new")
+        ) {
+            console.error("Error: --new requires a value (e.g. --new 5)")
+            process.exit(1)
+        }
+        throw err // rethrow if it's a different error
+    }
 }
 
 async function main() {
@@ -65,14 +74,14 @@ async function main() {
 
     // pass "--new 10" to solve 10 new games
     if (args.values.new) {
-        let result = await solveNewGames(parseInt(args.values.new as string))
+        let result = await solveNewGames(parseInt(args.values.new))
         process.exit(result ? 0 : 1)
     }
 
     // pass "--game-id 123" to solve a specific game by ID (which is a game previously attempted)
     // if no game-id is provided a new game will be generated
     let gameId = args.values["game-id"]
-        ? parseInt(args.values["game-id"] as string)
+        ? parseInt(args.values["game-id"])
         : undefined
 
     let result = await solveSingleGame(gameId)

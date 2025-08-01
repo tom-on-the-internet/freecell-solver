@@ -1,20 +1,14 @@
-import { type Card, type Deck, suitColor } from "./deck"
-
-type FreecellBoard = {
-    tableau: Card[][]
-    foundations: Card[][]
-    freeCells: (Card | null)[]
-}
+import { suitColor } from "./deck.js"
 
 const foundationSuits = ["H", "D", "C", "S"]
 
-function createFreecellBoard(deck: Deck): FreecellBoard {
-    let tableau: Card[][] = Array.from({ length: 8 }, () => [])
-    let foundations: Card[][] = Array.from({ length: 4 }, () => [])
-    let freeCells: (Card | null)[] = Array.from({ length: 4 }, () => null)
+function createFreecellBoard(deck) {
+    let tableau = Array.from({ length: 8 }, () => [])
+    let foundations = Array.from({ length: 4 }, () => [])
+    let freeCells = Array.from({ length: 4 }, () => null)
 
     for (let i = 0; i < deck.length; i++) {
-        tableau[i % 8]!.push(deck[i]!)
+        tableau[i % 8].push(deck[i])
     }
 
     return {
@@ -24,7 +18,7 @@ function createFreecellBoard(deck: Deck): FreecellBoard {
     }
 }
 
-function won(freeCellBoard: FreecellBoard): boolean {
+function won(freeCellBoard) {
     return freeCellBoard.foundations.every(
         (foundation) => foundation.length === 13
     )
@@ -33,8 +27,8 @@ function won(freeCellBoard: FreecellBoard): boolean {
 /**
  * Generates the next possible states from the current Freecell board.
  */
-function nextStates(freeCellBoard: FreecellBoard): FreecellBoard[] {
-    let nextBoards: FreecellBoard[] = []
+function nextStates(freeCellBoard) {
+    let nextBoards = []
     let { tableau, foundations, freeCells } = freeCellBoard
 
     // Move cards from free cells
@@ -42,13 +36,13 @@ function nextStates(freeCellBoard: FreecellBoard): FreecellBoard[] {
         if (!card) continue
 
         // Try to move to foundations
-        let foundation = foundations[foundationSuits.indexOf(card.suit)]!
+        let foundation = foundations[foundationSuits.indexOf(card.suit)]
         if (
             (foundation.length === 0 && card.rank === 1) ||
-            (foundation.length && foundation.at(-1)!.rank + 1 === card.rank)
+            (foundation.length && foundation.at(-1).rank + 1 === card.rank)
         ) {
             let newFoundations = foundations.map((f) => [...f])
-            newFoundations[foundations.indexOf(foundation)]!.push(card)
+            newFoundations[foundations.indexOf(foundation)].push(card)
             let newFreeCells = freeCells.map((c) => c)
             newFreeCells[freeCells.indexOf(card)] = null
             nextBoards.push({
@@ -62,11 +56,11 @@ function nextStates(freeCellBoard: FreecellBoard): FreecellBoard[] {
         for (let target of tableau) {
             if (
                 target.length === 0 ||
-                (suitColor(target.at(-1)!.suit) !== suitColor(card.suit) &&
-                    target.at(-1)!.rank === card.rank + 1)
+                (suitColor(target.at(-1).suit) !== suitColor(card.suit) &&
+                    target.at(-1).rank === card.rank + 1)
             ) {
                 let newTableau = tableau.map((t) => [...t])
-                newTableau[tableau.indexOf(target)]!.push(card)
+                newTableau[tableau.indexOf(target)].push(card)
                 let newFreeCells = freeCells.map((c) => c)
                 newFreeCells[freeCells.indexOf(card)] = null
                 nextBoards.push({
@@ -80,20 +74,20 @@ function nextStates(freeCellBoard: FreecellBoard): FreecellBoard[] {
 
     // Move cards from tableau
     for (let i = 0; i < tableau.length; i++) {
-        let source = tableau[i]!
+        let source = tableau[i]
         if (source.length === 0) continue
 
-        let card = source.at(-1)!
+        let card = source.at(-1)
 
         // Try to move to foundations
-        let foundation = foundations[foundationSuits.indexOf(card.suit)]!
+        let foundation = foundations[foundationSuits.indexOf(card.suit)]
 
         if (
             (foundation.length === 0 && card.rank === 1) ||
-            (foundation.length && foundation.at(-1)!.rank + 1 === card.rank)
+            (foundation.length && foundation.at(-1).rank + 1 === card.rank)
         ) {
             let newFoundations = foundations.map((f) => [...f])
-            newFoundations[foundations.indexOf(foundation)]!.push(card)
+            newFoundations[foundations.indexOf(foundation)].push(card)
             let newTableau = tableau.map((t) => [...t])
             newTableau[i] = source.slice(0, -1)
             nextBoards.push({
@@ -107,11 +101,11 @@ function nextStates(freeCellBoard: FreecellBoard): FreecellBoard[] {
         for (let target of tableau) {
             if (
                 target.length === 0 ||
-                (suitColor(target.at(-1)!.suit) !== suitColor(card.suit) &&
-                    target.at(-1)!.rank === card.rank + 1)
+                (suitColor(target.at(-1).suit) !== suitColor(card.suit) &&
+                    target.at(-1).rank === card.rank + 1)
             ) {
                 let newTableau = tableau.map((t) => [...t])
-                newTableau[tableau.indexOf(target)]!.push(card)
+                newTableau[tableau.indexOf(target)].push(card)
                 let newSource = source.slice(0, -1)
                 newTableau[i] = newSource
                 nextBoards.push({
@@ -141,5 +135,5 @@ function nextStates(freeCellBoard: FreecellBoard): FreecellBoard[] {
     return nextBoards
 }
 
-export type { FreecellBoard }
 export { createFreecellBoard, nextStates, won }
+
