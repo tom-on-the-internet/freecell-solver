@@ -6,7 +6,7 @@
     "scripts": {
         "new": "node src --new",
         "single": "node src",
-        "game": "node src --game-id",
+        "game": "node src --step --game-id",
         "unsolved": "node src unsolved",
         "stats": "node src stats"
     }

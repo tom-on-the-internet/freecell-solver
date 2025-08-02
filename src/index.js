@@ -41,6 +41,9 @@ function getArgs() {
                     type: "string",
                     description: "Solve # of new games",
                 },
+                step: {
+                    type: "boolean",
+                },
             },
             strict: true,
             allowPositionals: true,
@@ -51,6 +54,15 @@ function getArgs() {
             err.message.includes("--new")
         ) {
             console.error("Error: --new requires a value (e.g. --new 5)")
+            process.exit(1)
+        }
+        if (
+            err.code === "ERR_PARSE_ARGS_INVALID_OPTION_VALUE" &&
+            err.message.includes("--game-id")
+        ) {
+            console.error(
+                "Error: --game-id requires a value (e.g. --game-id 123)"
+            )
             process.exit(1)
         }
         throw err // rethrow if it's a different error
@@ -84,7 +96,8 @@ async function main() {
         ? parseInt(args.values["game-id"])
         : undefined
 
-    let result = await solveSingleGame(gameId)
+    let step = args.values.step || false
+    let result = await solveSingleGame(gameId, step)
     process.exit(result ? 0 : 1)
 }
 

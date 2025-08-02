@@ -4,6 +4,7 @@ import { createFreecellBoard } from "./freecell.js"
 import { solve } from "./solve.js"
 import { loadDeck, storeDeck } from "./storage.js"
 import { renderFreecellBoard } from "./terminal.js"
+import readline from "readline"
 
 /**
  *  Attempts to solve games that were previously attempted but not solved.
@@ -85,7 +86,7 @@ async function solveNewGames(count) {
 /**
  * Solves a single game, either by loading an existing game by ID or creating a new game.
  */
-async function solveSingleGame(gameId = undefined) {
+async function solveSingleGame(gameId = undefined, step = false) {
     let deck
 
     if (gameId) {
@@ -108,17 +109,57 @@ async function solveSingleGame(gameId = undefined) {
     console.log("Solution found:")
     let solution = result.path
 
-    for (let i = 0; i < solution.length; i++) {
-        console.clear()
-        console.log(renderFreecellBoard(solution[i], true))
-        console.log("Game ID:", gameId)
-        console.log("move:", i + 1, "/", solution.length)
-        console.log("visited:", result.visitedStates, "states")
-        console.log("queue:", result.priorityQueueSize, "states in queue")
-        await new Promise((resolve) => setTimeout(resolve, 100))
+    if (step) {
+        const rl = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout,
+        })
+        let currentStep = 0
+        const totalSteps = solution.length
+
+        function renderStep() {
+            console.clear()
+            console.log(renderFreecellBoard(solution[currentStep], true))
+            console.log("Game ID:", gameId)
+            console.log("move:", currentStep + 1, "/", totalSteps)
+            console.log("visited:", result.visitedStates, "states")
+            console.log("queue:", result.priorityQueueSize, "states in queue")
+            console.log("\nUse ←/→ arrows to step, 'q' to quit.")
+        }
+
+        function onKeypress(str, key) {
+            if (key.name === "right" && currentStep < totalSteps - 1) {
+                currentStep++
+                renderStep()
+            } else if (key.name === "left" && currentStep > 0) {
+                currentStep--
+                renderStep()
+            } else if (key.name === "q" || (key.ctrl && key.name === "c")) {
+                rl.input.setRawMode(false)
+                rl.close()
+                process.exit(0)
+            }
+        }
+
+        readline.emitKeypressEvents(process.stdin, rl)
+        if (process.stdin.isTTY) {
+            process.stdin.setRawMode(true)
+        }
+        process.stdin.on("keypress", onKeypress)
+        renderStep()
+        await new Promise(() => {}) // Keep process alive
+    } else {
+        for (let i = 0; i < solution.length; i++) {
+            console.clear()
+            console.log(renderFreecellBoard(solution[i], true))
+            console.log("Game ID:", gameId)
+            console.log("move:", i + 1, "/", solution.length)
+            console.log("visited:", result.visitedStates, "states")
+            console.log("queue:", result.priorityQueueSize, "states in queue")
+            await new Promise((resolve) => setTimeout(resolve, 100))
+        }
+        return true
     }
-    return true
 }
 
 export { solveUnsolved, stats, solveNewGames, solveSingleGame }
-
