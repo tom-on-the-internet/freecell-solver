@@ -25,10 +25,8 @@ function renderFreecellBoard(board, solved) {
     output += "   "
 
     board.foundations.forEach((foundation) => {
-        if (foundation.length > 0) {
-            let topCard = foundation.at(-1)
-            output += `|${renderCard(topCard)}| `
-        }
+        let topCard = foundation.length > 0 ? foundation.at(-1) : null
+        output += `|${renderCard(topCard)}| `
     })
 
     output += "\n\n"
