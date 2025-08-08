@@ -1,8 +1,7 @@
-import { readFile } from "fs/promises"
 import { shuffleDeck, createDeck } from "./deck.js"
 import { createFreecellBoard } from "./freecell.js"
 import { solve } from "./solve.js"
-import { loadDeck, storeDeck } from "./storage.js"
+import { loadDeck, storeDeck, loadResults } from "./storage.js"
 import { renderFreecellBoard } from "./terminal.js"
 import readline from "readline"
 
@@ -11,7 +10,7 @@ import readline from "readline"
  *  This is a way of seeing if an improved heuristic or algorithm can solve previously unsolved games.
  */
 async function solveUnsolved() {
-    let results = JSON.parse(await readFile("results.json", "utf8"))
+    let results = await loadResults()
 
     let games = results.filter((game) => !game.moves)
 
@@ -37,7 +36,7 @@ async function solveUnsolved() {
  * Shows statistics about the solved games.
  */
 async function stats() {
-    let results = JSON.parse(await readFile("results.json", "utf8"))
+    let results = await loadResults()
 
     let unsolvedGames = results.filter((game) => !game.moves)
     let leastMoves = results.reduce((min, game) => {
@@ -86,6 +85,46 @@ async function solveNewGames(count) {
 /**
  * Solves a single game, either by loading an existing game by ID or creating a new game.
  */
+/**
+ * Shows help information about available commands and options.
+ */
+function help() {
+    console.log(`
+    _____
+   |A .  | _____
+   | /.\ ||A ^  | _____
+   |(_._)|| / \ ||A _  | _____
+   |  |  || \ / || ( ) ||A_ _ |
+   |____V||  .  ||(_'_)||( v )|
+          |____V||  |  || \ / |
+                 |____V||  .  |
+                        |____V|
+
+Freecell Solver CLI
+
+COMMANDS:
+  npm run new [count]     Solve new games (default: 1)
+  npm run single          Solve a single new game
+  npm run game [id]       Solve specific game by ID with step-by-step display
+  npm run unsolved        Attempt to solve previously unsolved games
+  npm run stats           Display solver statistics
+  npm run help            Show this help message
+
+OPTIONS:
+  --new [count]           Solve specified number of new games
+  --game-id [id]          Load and solve a specific game by ID
+  --step                  Enable interactive step-by-step viewing
+
+EXAMPLES:
+  npm run new 5           Solve 5 new games
+  npm run game 123        View game 123 step-by-step
+  node src --new 10       Solve 10 new games directly
+  node src --game-id 42 --step  View game 42 interactively
+
+For more info: tom@tomontheinternet.com
+`)
+}
+
 async function solveSingleGame(gameId = undefined, step = false) {
     let deck
 
@@ -162,4 +201,4 @@ async function solveSingleGame(gameId = undefined, step = false) {
     }
 }
 
-export { solveUnsolved, stats, solveNewGames, solveSingleGame }
+export { solveUnsolved, stats, solveNewGames, solveSingleGame, help }

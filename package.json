@@ -8,6 +8,7 @@
         "single": "node src",
         "game": "node src --step --game-id",
         "unsolved": "node src unsolved",
-        "stats": "node src stats"
+        "stats": "node src stats",
+        "help": "node src help"
     }
 }
